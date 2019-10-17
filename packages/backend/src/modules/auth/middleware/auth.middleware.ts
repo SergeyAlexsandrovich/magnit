@@ -1,30 +1,36 @@
-import { Inject, NestMiddleware } from "@nestjs/common";
+import { NestMiddleware, Injectable } from "@nestjs/common";
 import { Response } from "express";
 import { TokenExpiredError } from "jsonwebtoken";
-import * as _ from "lodash";
 import { InvalidTokenException } from "../../../shared/exceptions/invalid-token.exception";
 import { UserUnauthorizedException } from "../../../shared/exceptions/user-unauthorized.exception";
-import { IAuthRequest } from "../../../shared/interfaces/auth.request.interface";
 import { PushTokenService } from "../../push-token/services/push-token.service";
-import { User } from "../entities/user.entity";
-import { IAuthService } from "../interfaces/auth.service.interface";
-import { ITokenManager } from "../interfaces/token.manager.interface";
-import { JwtTokenManager } from "../providers/jwt.token.manager";
-import { AirwatchAuthService } from "../services/airwatch-auth.service";
+import { User } from "../../user/entities/user.entity";
+import { JWTTokenManager } from "../providers/jwt.token.manager";
+import { AuthService } from "../services/auth.service";
+import { IAuthRequest } from "../../../shared/interfaces/auth.request.interface";
+import _ = require("lodash");
 
-export class AirwatchAuthMiddleware implements NestMiddleware<IAuthRequest, Response> {
+@Injectable()
+export class AuthMiddleware implements NestMiddleware<IAuthRequest, Response> {
     constructor(
-        @Inject(AirwatchAuthService) private readonly authService: IAuthService,
-        @Inject(JwtTokenManager) private readonly tokenManager: ITokenManager<User>,
+        private readonly authService: AuthService,
+        private readonly tokenManager: JWTTokenManager<User>,
         private readonly pushTokenService: PushTokenService,
     ) {}
 
-    async use(req: IAuthRequest, res: Response, next: () => void): Promise<void> {
-        const authorization = req.header("Authorization");
+    async use(req: IAuthRequest, res: Response, next: () => void) {
         const token = req.header("X-Access-Token");
+        const originalUrl = req.originalUrl;
+        const authorization = req.header("Authorization");
+
+        if (originalUrl.indexOf("auth") !== -1) {
+            return next();
+        }
+
         if (authorization) {
-            const [username, password] = this.getCredentialsFromAuthorizationString(authorization);
-            req.user = await this.authService.validateUser(username, password);
+            const [email, password] = this.getCredentialsFromAuthorizationString(authorization);
+
+            req.user = await this.authService.validateUser(email, password);
             if (!req.user) {
                 throw new UserUnauthorizedException("Cannot authorize user");
             }
@@ -47,8 +53,7 @@ export class AirwatchAuthMiddleware implements NestMiddleware<IAuthRequest, Resp
                 }
                 throw new InvalidTokenException(message);
             }
-        }
-        res.set("WWW-Authenticate", "Basic");
+        } 
         throw new UserUnauthorizedException("User unauthorized");
     }
 

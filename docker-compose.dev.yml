@@ -6,7 +6,7 @@ services:
         volumes:
             - .:/devel
         working_dir: /devel/packages/frontend
-        command: npm run start
+        command: yarn start
         restart: always
         environment:
             - NODE_ENV=development
@@ -54,6 +54,9 @@ services:
             - FIREBASE_CLIENT_EMAIL=${FIREBASE_CLIENT_EMAIL}
             - FIREBASE_CLIENT_ID=${FIREBASE_CLIENT_ID}
             - FIREBASE_CLIENT_X509_CERT_URL=${FIREBASE_CLIENT_X509_CERT_URL}
+            - ADMIN_ROLE_DESCRIPTION=${ADMIN_ROLE_DESCRIPTION}
+            - ADMIN_ROLE_TITLE=${ADMIN_ROLE_TITLE}
+            - ADMIN_ROLE_ID=${ADMIN_ROLE_ID}
         restart: always
         networks:
             - magnit
