@@ -14,7 +14,7 @@ import _ = require("lodash");
 export class AuthMiddleware implements NestMiddleware<IAuthRequest, Response> {
     constructor(
         private readonly authService: AuthService,
-        private readonly tokenManager: JWTTokenManager<User>,
+        private readonly jwtTokenManager: JWTTokenManager<User>,
         private readonly pushTokenService: PushTokenService,
     ) {}
 
@@ -34,14 +34,14 @@ export class AuthMiddleware implements NestMiddleware<IAuthRequest, Response> {
             if (!req.user) {
                 throw new UserUnauthorizedException("Cannot authorize user");
             }
-            res.header("X-Access-Token", this.tokenManager.encode(req.user));
+            res.header("X-Access-Token", this.jwtTokenManager.encode(req.user));
             res.header("Access-Control-Expose-Headers", "X-Access-Token");
             // try to get push tokens
             await this.setPushTokenIfExists(req.user);
             return next();
         } else if (token) {
             try {
-                req.user = this.tokenManager.decode(token);
+                req.user = this.jwtTokenManager.decode(token);
                 res.set("X-Access-Token", token);
                 // try to get push tokens
                 await this.setPushTokenIfExists(req.user);

@@ -23,11 +23,9 @@ export class UserModule implements NestModule {
         if (!title) {
             throw new Error("Admin role title is undefined");
         }
-
         if (!description) {
             throw new Error("Admin role description is undefined");
         }
-
         if (!id) {
             throw new Error("Admin role id is undefined");
         }

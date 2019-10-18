@@ -25,10 +25,10 @@ export class UserService {
         return this.userRepository.findOne({ email: `${email}` });
     }
 
-    async findAll(role?: number) {
-        if (role) {
+    async findAll(roleId?: number) {
+        if (roleId) {
             return this.userRepository.find({
-                where: { id_role: role },
+                where: { id_role: roleId },
             });
         } else {
             return this.userRepository.find();
@@ -45,7 +45,7 @@ export class UserService {
 
     async getAdminRole() {
         const role = await this.userRoleRepository.findOne({
-            where: { id: +process.env.ADMIN_ROLE_ID },
+            where: { id: Number(process.env.ADMIN_ROLE_ID) },
         });
         if (role) {
             return role;
@@ -56,7 +56,7 @@ export class UserService {
     async createRole(role: UserRole) {
         return this.userRoleRepository.query(
             `
-                 INSERT INTO user_role ("id","title","description")
+                 INSERT INTO user_role ('id','title','description')
                  VALUES ('${role.id}','${role.title}','${role.description}')
              `,
         );
