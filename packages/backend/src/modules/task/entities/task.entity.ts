@@ -36,7 +36,7 @@ export class Task extends PrimaryBaseEntity {
     @Column()
     id_owner: number;
 
-    @ManyToOne(type => User, owner => owner.tasks, { onDelete: "CASCADE" })
+    @ManyToOne(() => User, owner => owner.tasks, { onDelete: "CASCADE" })
     @JoinColumn({ name: "id_owner" })
     owner: User;
 
@@ -52,7 +52,7 @@ export class Task extends PrimaryBaseEntity {
     id_marketplace: number | null;
 
     @ManyToOne(() => Marketplace)
-    @JoinColumn({ name: "id_marketplace", referencedColumnName: "id" })
+    @JoinColumn({ name: "id_marketplace" })
     marketplace: Marketplace;
 
     @OneToMany(() => TemplateAssignment, assignment => assignment.task)

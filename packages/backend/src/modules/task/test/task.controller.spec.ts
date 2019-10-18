@@ -8,7 +8,6 @@ import { TaskDto } from "../dto/task.dto";
 import { ETaskStatus, Task } from "../entities/task.entity";
 import { TaskService } from "../services/task.service";
 import { TaskController } from "../task.controller";
-import { User } from "../../user/entities/user.entity";
 
 describe("TaskController", () => {
     let taskController: TaskController;
@@ -26,13 +25,27 @@ describe("TaskController", () => {
         stages: [],
         answers: [],
         documents: [],
-        owner: new User({
+        owner: {
+            id: 0,
             email: "",
             password: "",
-            id: 0,
             firstName: "",
             lastName: "",
-        }),
+            patronymic: "",
+            department: "",
+            region: "",
+            id_role: 0,
+            role: {
+                id: 0,
+                title: "",
+                description: "",
+                updated_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+            },
+            tasks: [],
+            updated_at: new Date().toISOString(),
+            created_at: new Date().toISOString(),
+        },
         marketplace: {
             id: 0,
             address: "",

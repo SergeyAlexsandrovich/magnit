@@ -53,7 +53,7 @@ export class AuthMiddleware implements NestMiddleware<IAuthRequest, Response> {
                 }
                 throw new InvalidTokenException(message);
             }
-        } 
+        }
         throw new UserUnauthorizedException("User unauthorized");
     }
 

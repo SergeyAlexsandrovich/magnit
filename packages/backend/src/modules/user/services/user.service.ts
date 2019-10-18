@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { User } from "../entities/user.entity";
-import { Repository, FindManyOptions } from "typeorm";
-import { UserRole } from "../entities/user.role.entity";
+import { Repository } from "typeorm";
 import { RoleNotFoundException } from "../../../shared/exceptions/role-not-found.exception";
+import { User } from "../entities/user.entity";
+import { UserRole } from "../entities/user.role.entity";
 
 @Injectable()
 export class UserService {
@@ -16,7 +16,7 @@ export class UserService {
 
     async findById(id: number) {
         return this.userRepository.findOne({
-            where: { id: id },
+            where: { id },
             relations: ["role"],
         });
     }
@@ -26,32 +26,21 @@ export class UserService {
     }
 
     async findAll(role?: number) {
-        const options: FindManyOptions<User> = {};
         if (role) {
             return this.userRepository.find({
-                where: {id_role: role}
-            })
+                where: { id_role: role },
+            });
         } else {
             return this.userRepository.find();
         }
     }
 
     async userExistById(id: number) {
-        return (await this.findById(id)) ? true : false;
+        return !!(await this.findById(id));
     }
 
     async create(user: User) {
         return this.userRepository.save(user);
-    }
-
-    async findRoleById(roleId: number) {
-        return this.userRoleRepository.findOne({
-            where: { id: roleId },
-        });
-    }
-
-    async roleByIdExists(role: UserRole) {
-        return this.userRoleRepository.hasId(role);
     }
 
     async getAdminRole() {
@@ -67,7 +56,7 @@ export class UserService {
     async createRole(role: UserRole) {
         return this.userRoleRepository.query(
             `
-                 INSERT INTO user_role ("id","title","description") 
+                 INSERT INTO user_role ("id","title","description")
                  VALUES ('${role.id}','${role.title}','${role.description}')
              `,
         );
